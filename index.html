@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Qualitative Comparison on Blender Dataset</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    h1, h2 {
+      color: #333;
+    }
+    video {
+      border: 1px solid #ccc;
+    }
+    .video-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Qualitative Comparison on Blender Dataset</h1>
+  <p>Please wait a few minutes to load videos.</p>
+
+  <h2>Chair</h2>
+  <div class="video-row">
+    <video controls width="320">
+      <source src="videos/3dgs/renders_white_chair.mp4" type="video/mp4">
+    </video>
+
+    <video controls width="320">
+      <source src="videos/bicubic/renders_white_bic_chair.mp4" type="video/mp4">
+    </video>
+
+    <video controls width="320">
+      <source src="videos/arbisr/renders_white_realsrarbi_chair.mp4" type="video/mp4">
+    </video>
+
+    <video controls width="320">
+      <source src="videos/stablesr/renders_white_stablesr_chair.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <div class="video-row">
+    <video controls width="320">
+      <source src="videos/mip/mip_chair.mp4" type="video/mp4">
+    </video>
+
+    <video controls width="320">
+      <source src="videos/ana/ana_chair.mp4" type="video/mp4">
+    </video>
+
+    <video controls width="320">
+      <source src="videos/Gaussiansr/gaussiansr_chair.mp4" type="video/mp4">
+    </video>
+
+    <video controls width="320">
+      <source src="videos/ours/ours_chair.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <div class="video-row">
+    <video controls width="320">
+      <source src="videos/gt/gt_chair.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <h2>Microphone</h2>
+  <div class="video-row">
+    <video controls width="320">
+      <source src="videos/3dgs/renders_white_mic.mp4" type="video/mp4">
+    </video>
+
+    <video controls width="320">
+      <source src="videos/bicubic/renders_white_bic_mic.mp4" type="video/mp4">
+    </video>
+
+    <video controls width="320">
+      <source src="videos/arbisr/renders_white_realsrarbi_mic.mp4" type="video/mp4">
+    </video>
+
+    <video controls width="320">
+      <source src="videos/stablesr/renders_white_stablesr_mic.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <div class="video-row">
+    <video controls width="320">
+      <source src="videos/mip/mip_mic.mp4" type="video/mp4">
+    </video>
+
+    <video controls width="320">
+      <source src="videos/ana/ana_mic.mp4" type="video/mp4">
+    </video>
+
+    <video controls width="320">
+      <source src="videos/Gaussiansr/gaussiansr_mic.mp4" type="video/mp4">
+    </video>
+
+    <video controls width="320">
+      <source src="videos/ours/ours_mic.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <div class="video-row">
+    <video controls width="320">
+      <source src="videos/gt/gt_mic.mp4" type="video/mp4">
+    </video>
+  </div>
+</body>
+</html>
