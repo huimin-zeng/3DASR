@@ -262,6 +262,26 @@ function playTwoVids(videoId1, videoId2, canvasId) {
         requestAnimationFrame(drawLoop);
     }
 
+    function showPlayPrompt() {
+        // Canvas 可能还没设置尺寸；尽量用当前尺寸绘制提示
+        var w = videoMerge.width || 640;
+        var h = videoMerge.height || 360;
+        if (videoMerge.width === 0 || videoMerge.height === 0) {
+            videoMerge.width = w;
+            videoMerge.height = h;
+        }
+        mergeContext.clearRect(0, 0, videoMerge.width, videoMerge.height);
+        mergeContext.fillStyle = "rgba(0,0,0,0.75)";
+        mergeContext.fillRect(0, 0, videoMerge.width, videoMerge.height);
+        mergeContext.fillStyle = "#ffffff";
+        mergeContext.textAlign = "center";
+        mergeContext.textBaseline = "middle";
+        mergeContext.font = "bold 22px Arial";
+        mergeContext.fillText("Tap to play", videoMerge.width / 2, videoMerge.height / 2 - 12);
+        mergeContext.font = "16px Arial";
+        mergeContext.fillText("Mobile browsers require user interaction", videoMerge.width / 2, videoMerge.height / 2 + 16);
+    }
+
     function startPlaying() {
         // 移除之前可能存在的监听器
         if (timeUpdateHandler) {
@@ -276,16 +296,22 @@ function playTwoVids(videoId1, videoId2, canvasId) {
         vid2.currentTime = 0;
 
         function playBoth() {
-            var playPromise1 = vid1.play().catch(function(err) {
+            var p1 = vid1.play().catch(function(err) {
                 console.log('Left video initial play error:', err);
+                if (err && (err.name === 'NotAllowedError' || err.name === 'NotSupportedError')) {
+                    showPlayPrompt();
+                }
                 return null;
             });
-            var playPromise2 = vid2.play().catch(function(err) {
+            var p2 = vid2.play().catch(function(err) {
                 console.log('Right video initial play error:', err);
+                if (err && (err.name === 'NotAllowedError' || err.name === 'NotSupportedError')) {
+                    showPlayPrompt();
+                }
                 return null;
             });
 
-            Promise.all([playPromise1, playPromise2]).finally(function() {
+            Promise.all([p1, p2]).finally(function() {
                 // 确保时间同步
                 vid1.currentTime = vid2.currentTime;
 
@@ -307,6 +333,14 @@ function playTwoVids(videoId1, videoId2, canvasId) {
             });
         }
 
+        // 移动端 autoplay 可能被拒绝：绑定一次性点击/触摸作为兜底
+        function onUserGesture() {
+            playBoth();
+        }
+        videoMerge.addEventListener('click', onUserGesture, { once: true });
+        videoMerge.addEventListener('touchstart', onUserGesture, { once: true, passive: true });
+
+        // 先尝试自动播放（桌面/部分安卓可行）
         playBoth();
     }
 
@@ -328,6 +362,9 @@ function resizeAndPlayTwo(element1, element2, canvasId) {
     var vid1 = document.getElementById(element1);
     var vid2 = document.getElementById(element2);
     
+    var tries = 0;
+    var maxTries = 30; // ~3s
+
     function setupCanvas() {
         if (vid1.videoWidth > 0 && vid2.videoWidth > 0) {
             // 设置 canvas 的内部绘制尺寸为视频的实际尺寸
@@ -346,18 +383,36 @@ function resizeAndPlayTwo(element1, element2, canvasId) {
                 }
             }
             
-            vid1.style.display = "none";
-            vid2.style.display = "none";
+            // 不要用 display:none（iOS 上可能不加载/不解码）；保持“可渲染”但不可见
+            vid1.style.height = "0px";
+            vid2.style.height = "0px";
+            playTwoVids(element1, element2, canvasId);
+            return;
+        }
+        // 等待尺寸可用
+        tries += 1;
+        if (tries <= maxTries) {
+            setTimeout(setupCanvas, 100);
+        } else {
+            // fallback：至少让 canvas 有尺寸，提示用户点一下
+            if (cv.width === 0 || cv.height === 0) {
+                cv.width = 640;
+                cv.height = 360;
+            }
             playTwoVids(element1, element2, canvasId);
         }
     }
     
-    if (vid1.readyState > 3 && vid2.readyState > 3) {
-        setupCanvas();
-    } else {
-        vid1.addEventListener('loadedmetadata', setupCanvas);
-        vid2.addEventListener('loadedmetadata', setupCanvas);
-        vid1.load();
-        vid2.load();
-    }
+    // 多事件监听，提升移动端命中率
+    vid1.addEventListener('loadedmetadata', setupCanvas);
+    vid2.addEventListener('loadedmetadata', setupCanvas);
+    vid1.addEventListener('loadeddata', setupCanvas);
+    vid2.addEventListener('loadeddata', setupCanvas);
+    vid1.addEventListener('canplay', setupCanvas);
+    vid2.addEventListener('canplay', setupCanvas);
+
+    // 主动触发加载
+    vid1.load();
+    vid2.load();
+    setupCanvas();
 }

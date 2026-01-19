@@ -232,20 +232,20 @@
         <div class="content" style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
           <div style="flex: 1; min-width: 300px; max-width: 48%; text-align: center;">
             <h4 class="title is-5" style="margin-bottom: 10px;">Chair</h4>
-            <video id="comp_chair_left" loop playsinline muted style="display: none;">
+            <video id="comp_chair_left" loop playsinline muted preload="metadata" style="position: absolute; left: -9999px; top: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none;">
               <source id="comp_chair_left_source" src="videos/3dgs/renders_white_chair.mp4" type="video/mp4">
             </video>
-            <video id="comp_chair_right" loop playsinline muted style="display: none;">
+            <video id="comp_chair_right" loop playsinline muted preload="metadata" style="position: absolute; left: -9999px; top: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none;">
               <source id="comp_chair_right_source" src="videos/ours/ours_chair.mp4" type="video/mp4">
             </video>
             <canvas class="videoMerge" id="comp_chair_merge" style="width: 100%; max-width: 100%; height: auto;"></canvas>
           </div>
           <div style="flex: 1; min-width: 300px; max-width: 48%; text-align: center;">
             <h4 class="title is-5" style="margin-bottom: 10px;">Microphone</h4>
-            <video id="comp_mic_left" loop playsinline muted style="display: none;">
+            <video id="comp_mic_left" loop playsinline muted preload="metadata" style="position: absolute; left: -9999px; top: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none;">
               <source id="comp_mic_left_source" src="videos/3dgs/renders_white_mic.mp4" type="video/mp4">
             </video>
-            <video id="comp_mic_right" loop playsinline muted style="display: none;">
+            <video id="comp_mic_right" loop playsinline muted preload="metadata" style="position: absolute; left: -9999px; top: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none;">
               <source id="comp_mic_right_source" src="videos/ours/ours_mic.mp4" type="video/mp4">
             </video>
             <canvas class="videoMerge" id="comp_mic_merge" style="width: 100%; max-width: 100%; height: auto;"></canvas>
