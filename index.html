@@ -239,6 +239,11 @@
               <source id="comp_chair_right_source" src="videos/ours/ours_chair.mp4" type="video/mp4">
             </video>
             <canvas class="videoMerge" id="comp_chair_merge" style="width: 100%; max-width: 100%; height: auto;"></canvas>
+            <!-- Mobile fallback: use first-frame thumbnails instead of videos -->
+            <div id="comp_chair_thumb" class="b-dics" style="display: none;">
+              <img alt="Left" src="./assets/thumbs/3dgs_chair.jpg">
+              <img alt="Right" src="./assets/thumbs/ours_chair.jpg">
+            </div>
           </div>
           <div style="flex: 1; min-width: 300px; max-width: 48%; text-align: center;">
             <h4 class="title is-5" style="margin-bottom: 10px;">Microphone</h4>
@@ -249,6 +254,11 @@
               <source id="comp_mic_right_source" src="videos/ours/ours_mic.mp4" type="video/mp4">
             </video>
             <canvas class="videoMerge" id="comp_mic_merge" style="width: 100%; max-width: 100%; height: auto;"></canvas>
+            <!-- Mobile fallback: use first-frame thumbnails instead of videos -->
+            <div id="comp_mic_thumb" class="b-dics" style="display: none;">
+              <img alt="Left" src="./assets/thumbs/3dgs_mic.jpg">
+              <img alt="Right" src="./assets/thumbs/ours_mic.jpg">
+            </div>
           </div>
         </div>
         
@@ -288,6 +298,18 @@
               mic: 'videos/ours/ours_mic.mp4'
             }
           };
+
+          // Thumbnail paths mapping (first frame)
+          const thumbPaths = {
+            '3dgs': { chair: './assets/thumbs/3dgs_chair.jpg', mic: './assets/thumbs/3dgs_mic.jpg' },
+            'bicubic': { chair: './assets/thumbs/bicubic_chair.jpg', mic: './assets/thumbs/bicubic_mic.jpg' },
+            'arbisr': { chair: './assets/thumbs/arbisr_chair.jpg', mic: './assets/thumbs/arbisr_mic.jpg' },
+            'stablesr': { chair: './assets/thumbs/stablesr_chair.jpg', mic: './assets/thumbs/stablesr_mic.jpg' },
+            'mip': { chair: './assets/thumbs/mip_chair.jpg', mic: './assets/thumbs/mip_mic.jpg' },
+            'ana': { chair: './assets/thumbs/ana_chair.jpg', mic: './assets/thumbs/ana_mic.jpg' },
+            'gaussiansr': { chair: './assets/thumbs/gaussiansr_chair.jpg', mic: './assets/thumbs/gaussiansr_mic.jpg' },
+            'ours': { chair: './assets/thumbs/ours_chair.jpg', mic: './assets/thumbs/ours_mic.jpg' }
+          };
           
           let chairInitialized = false;
           let micInitialized = false;
@@ -295,8 +317,57 @@
           // 保存之前的选择值，用于检测变化
           let previousLeftMethod = '3dgs';
           let previousRightMethod = 'ours';
+
+          function isMobileDevice() {
+            return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || ('ontouchstart' in window && window.innerWidth < 1024);
+          }
+
+          function initThumbDics(containerId, leftSrc, rightSrc, leftLabel, rightLabel) {
+            const container = document.getElementById(containerId);
+            // Reset container (Dics mutates DOM)
+            container.innerHTML = '' +
+              '<img alt=\"' + leftLabel + '\" src=\"' + leftSrc + '\">' +
+              '<img alt=\"' + rightLabel + '\" src=\"' + rightSrc + '\">';
+            // Build slider
+            new Dics({
+              container: container,
+              hideTexts: true,
+              textPosition: 'top',
+              linesOrientation: 'horizontal'
+            });
+          }
           
           function initializeComparisons() {
+            if (isMobileDevice()) {
+              // Mobile: show thumbnail comparisons, hide video canvases
+              document.getElementById('comp_chair_merge').style.display = 'none';
+              document.getElementById('comp_mic_merge').style.display = 'none';
+              document.getElementById('comp_chair_thumb').style.display = 'flex';
+              document.getElementById('comp_mic_thumb').style.display = 'flex';
+
+              const leftMethod = document.getElementById('left-method').value;
+              const rightMethod = document.getElementById('right-method').value;
+
+              initThumbDics(
+                'comp_chair_thumb',
+                thumbPaths[leftMethod].chair,
+                thumbPaths[rightMethod].chair,
+                'Left: ' + leftMethod,
+                'Right: ' + rightMethod
+              );
+              initThumbDics(
+                'comp_mic_thumb',
+                thumbPaths[leftMethod].mic,
+                thumbPaths[rightMethod].mic,
+                'Left: ' + leftMethod,
+                'Right: ' + rightMethod
+              );
+
+              chairInitialized = true;
+              micInitialized = true;
+              return;
+            }
+
             const chairLeftVideo = document.getElementById('comp_chair_left');
             const chairRightVideo = document.getElementById('comp_chair_right');
             const micLeftVideo = document.getElementById('comp_mic_left');
@@ -327,6 +398,28 @@
           function updateComparison() {
             const leftMethod = document.getElementById('left-method').value;
             const rightMethod = document.getElementById('right-method').value;
+
+            // Mobile: update thumbnails only
+            if (isMobileDevice()) {
+              initThumbDics(
+                'comp_chair_thumb',
+                thumbPaths[leftMethod].chair,
+                thumbPaths[rightMethod].chair,
+                'Left: ' + leftMethod,
+                'Right: ' + rightMethod
+              );
+              initThumbDics(
+                'comp_mic_thumb',
+                thumbPaths[leftMethod].mic,
+                thumbPaths[rightMethod].mic,
+                'Left: ' + leftMethod,
+                'Right: ' + rightMethod
+              );
+
+              previousLeftMethod = leftMethod;
+              previousRightMethod = rightMethod;
+              return;
+            }
             
             const chairLeftVideo = document.getElementById('comp_chair_left');
             const chairRightVideo = document.getElementById('comp_chair_right');
